@@ -124,7 +124,7 @@ $CMP TRANS-4
 D Transformer, four windings
 $ENDCMP
 #
-$CMP VDR
+$CMP VARISTOR
 D Varistor
 K MOV VDR varistor
 $ENDCMP
