@@ -6,25 +6,19 @@ DBFILES=$(shell find bomtool-db -type f)
 
 TMPDIR := $(shell mktemp -d)
 
-BOMTOOL ?= $$(which bomtool)
+PCBLIB_PATH := "../pcblib"
 
-.PHONY: all dcmfiles bom_check
+.PHONY: all clean
 
-%.dcm: %.lib ${DBFILES}
-	@echo $<
-	@./scripts/libfile_tool.py import_descrs $^ <$@ >${TMPDIR}/$$(basename $@)
-	@mv ${TMPDIR}/$$(basename $@) $@
-
-all: ${PVFILES} ${DCMFILES}
+all: ${PVFILES}
 	rm -f ${IMAGECACHE}
 	@#./scripts/cleanup.py images
 
-dcmfiles: ${DCMFILES}
+test:
+	./scripts/tests.py --pcblib-path ${PCBLIB_PATH} library
 
-bom_check: ${LIBFILES}
-	for f in ${LIBFILES}; do \
-		./scripts/libfile_tool.py bom_check $$f $$(which bomtool); \
-	done
+clean:
+	rm -rf preview/
 
 preview/%.md: library/%.lib
 	mkdir -p preview/images

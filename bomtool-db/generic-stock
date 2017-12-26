@@ -1,9 +1,0 @@
-PIN STRIP 100mil
-DESCR Header pins, 100mil, breakable strip
-STOCK PIN STRIP 100mil
-END
-
-JUMPER 100mil
-DESCR Header jumper, 100mil
-STOCK JUMPER 100mil
-END
