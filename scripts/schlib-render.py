@@ -215,7 +215,7 @@ class SchSymbol(KicadObject):
             if state == "root":
                 if parser.parts[0] == "EESchema-LIBRARY":
                     assert parser.parts[1] == "Version"
-                    assert Decimal(parser.parts[2]) <= Decimal("2.3")
+                    assert Decimal(parser.parts[2]) <= Decimal("2.4")
 
                 elif parser.parts[0] == "DEF":
                     self.parse_line_into(parser,
