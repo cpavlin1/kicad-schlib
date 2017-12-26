@@ -44,8 +44,9 @@ class Library(object):
         line = reader.readline()
         if not line.startswith("EESchema-LIBRARY Version "):
             raise KiSyntaxError(reader.line_number, "Expected \"EESchema-LIBRARY\"")
-        if not line.startswith("EESchema-LIBRARY Version 2.3"):
-            raise KiSyntaxError(reader.line_number, "Expected file format version 2.3")
+        version = line.split()[2]
+        if not version in ("2.3", "2.4"):
+            raise KiSyntaxError(reader.line_number, "Expected file format version 2.3 or 2.4")
 
         line = reader.readline()
         if not line.startswith("#encoding "):
