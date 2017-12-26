@@ -289,12 +289,14 @@ class Text(Drawing):
         self.posx = int(data[2])
         self.posy = int(data[3])
         self.size = int(data[4])
+        self.hidden = (int(data[5]) == 1)
         self.unit = int(data[6])
         self.convert = int(data[7])
         self.text = data[8]
         self.italic = (data[9] == "Italic")
-        self.hjustify = data[10]
-        self.vjustify = data[11]
+        self.bold = (int(data[10]) == 1)
+        self.hjustify = data[11]
+        self.vjustify = data[12]
         return self
 
 class Pin(Drawing):
