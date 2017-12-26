@@ -185,6 +185,7 @@ class SchSymbol(KicadObject):
         self.fields = []
         self.fplist = []
         self.objects = []
+        self.aliases = []
         self.description = ""
         if stack is not None:
              self.parse_kicad(stack)
@@ -238,6 +239,9 @@ class SchSymbol(KicadObject):
                 elif parser.parts[0] == "$FPLIST":
                     state = "fplist"
 
+                elif parser.parts[0] == "ALIAS":
+                    self.aliases.extend(parser.parts[1:])
+                    
                 elif parser.parts[0] == "DRAW":
                     state = "draw"
 
@@ -766,6 +770,11 @@ if __name__ == "__main__":
     for item in items:
 
         print("## " + item.name)
+        if item.aliases:
+            print("Aliases:")
+            for alias in item.aliases:
+                print("* " + alias)
+            print()
         if item.description:
             print(item.description)
             print()
