@@ -15,7 +15,7 @@ all: ${PVFILES}
 	@#./scripts/cleanup.py images
 
 test:
-	./scripts/tests.py --pcblib-path ${PCBLIB_PATH} library
+	./scripts/tests.py -k --pcblib-path ${PCBLIB_PATH} library
 
 clean:
 	rm -rf preview/

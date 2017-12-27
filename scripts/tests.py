@@ -5,6 +5,34 @@ import sys
 import argparse
 import kicad_schlib
 
+from urllib.request import urlopen, Request
+from urllib.error import URLError
+datasheet_links = {}
+
+def check_ds_link(url):
+    if not url in datasheet_links:
+        request = Request(url)
+        request.get_method = lambda : 'HEAD'
+        request.add_header("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0")
+        try:
+            response = urlopen(request, timeout=5)
+            datasheet_links[url] = response.getcode()
+        except URLError as e:
+            datasheet_links[url] = getattr(e, 'code', str(e))
+        except Exception as e:
+            datasheet_links[url] = str(e)
+        # Some 'special' hosts dont implement the HEAD method
+        if datasheet_links[url] == 405:
+            try:
+                request.get_method = lambda : 'GET'
+                response = urlopen(request, timeout=3)
+                datasheet_links[url] = response.getcode()
+            except URLError as e:
+                datasheet_links[url] = getattr(e, 'code', str(e))
+            except Exception as e:
+                datasheet_links[url] = str(e)
+    return datasheet_links[url]
+
 PCBLIB_PATH = "../../pcblib" # Path relative to the library directory in a mock project
 
 test_functions = []
@@ -36,6 +64,15 @@ def footprint_check(part):
         fpname = fp[1] + ".kicad_mod"
         fppath = os.path.join(PCBLIB_PATH, libname, fpname)
         assert os.path.isfile(fppath), "Footprint file '%s' does not exist" % fppath
+
+@register_notpl
+def datasheet_check(part):
+    """Datasheet check"""
+    if part.datasheet == "":
+        return # Blank datasheet ok
+    assert part.datasheet.startswith("http"), "'{}' is an invalid URL".format(part.datasheet)
+    code = check_ds_link(part.datasheet)
+    assert code in (200,301,302), "link '{}' BROKEN, error code '{}'".format(part.datasheet, code)
 
 
 def main(args):
