@@ -1,6 +1,7 @@
 LIBFILES=$(wildcard library/*.lib)
 DCMFILES=$(patsubst %.lib,%.dcm,${LIBFILES})
 PVFILES=$(addprefix preview/,$(patsubst %.lib,%.md,$(notdir ${LIBFILES})))
+TESTFILES=$(addprefix test-results/,$(notdir ${PVFILES}))
 IMAGECACHE:=$(shell mktemp)
 DBFILES=$(shell find bomtool-db -type f)
 
@@ -15,17 +16,35 @@ all: ${PVFILES}
 	@#./scripts/cleanup.py images
 
 check: error-report.md
-	@[ ! -f error-todo.md ] || diff -uwBd --color=always -I '^- \[x\]' -I '^#' error-todo.md $< && echo "No new errors" || true
-	@[ ! -s $< ] || echo "Errors remain!, check $<" && false
+	@if [ -d test-todo ]; then \
+		diff -uwBdN -x '*~' --color=always -I '^- \[x\]' -I '^#' \
+		test-todo test-results && echo "No new errors" || true ; \
+	fi
+	@[ ! -s  $< ] || echo "Errors remain!, check $<" && false
 
-error-report.md: ${LIBFILES}
-	PYTHONUNBUFFERED=1 ./scripts/tests.py \
-		-k --pcblib-path ${PCBLIB_PATH} library \
-	| tee -i $@
+test-todo: ${TESTFILES}
+	mkdir -p $@
+	@echo 'cp $$TESTFILES $@/'
+	@cp $^ $@/
+	find $@ -empty -type f -delete
+
+error-report.md: ${TESTFILES}
+	@echo 'cat $$TESTFILES > $@'
+	@cat $^ > $@
+
+test-results:
+	mkdir -p $@
+
+test-results/%.md: library/%.lib | test-results
+	./scripts/tests.py -k --pcblib-path ${PCBLIB_PATH} $< > $@
 
 clean:
 	rm -rf preview/
+	rm -rf test-results/
 	rm -f error-report.md
+
+distclean: clean
+	rm -rf test-todo/
 
 preview/%.md: library/%.lib
 	mkdir -p preview/images

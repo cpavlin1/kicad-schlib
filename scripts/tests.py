@@ -84,58 +84,52 @@ def datasheet_check(part):
 
 
 def main(args):
-    retcode = 0
+    full_fn = args.path
+    fn = os.path.basename(full_fn)
+    with open(full_fn) as f:
+        reader = kicad_schlib.FileReader(f)
 
-    for fn in os.listdir(args.path):
-        if not fn.endswith(".lib"):
-            continue
+        try:
+            lib = kicad_schlib.Library.parse(reader)
+        except kicad_schlib.KiSyntaxError as e:
+            print("# %s - cannot parse" % full_fn)
+            print(str(e))
+            return 2
 
-        full_fn = os.path.join(args.path, fn)
+        lib_success = True
+        tests = test_functions + test_notpl_functions if not fn.startswith("_") else []
+        for each_part in lib.parts:
+            part_success = True
+            for each_fxn in tests:
+                try:
+                    each_fxn(each_part)
+                except Exception as e:
+                    if lib_success:
+                        print("# Library '{}'".format(full_fn))
+                        lib_success = False
+                    if part_success:
+                        print("\n## Part '{}'".format(each_part.name))
+                        part_success = False
+                    print("- [ ] {}: {}".format(each_fxn.__doc__, str(e)))
+                    if not args.keep_going:
+                        break
 
-        with open(full_fn) as f:
-            reader = kicad_schlib.FileReader(f)
-
-            try:
-                lib = kicad_schlib.Library.parse(reader)
-            except kicad_schlib.KiSyntaxError as e:
-                print("# %s - cannot parse" % full_fn)
-                print(str(e))
-                continue
-
-            lib_success = True
-            tests = test_functions + test_notpl_functions if not fn.startswith("_") else []
-            for each_part in lib.parts:
-                part_success = True
-                for each_fxn in tests:
-                    try:
-                        each_fxn(each_part)
-                    except Exception as e:
-                        if lib_success:
-                            print("# Library '{}'".format(full_fn))
-                            lib_success = False
-                        if part_success:
-                            print("\n## Part '{}'".format(each_part.name))
-                            part_success = False
-                        print("- [ ] {}: {}".format(each_fxn.__doc__, str(e)))
-                        if not args.keep_going:
-                            break
-
-            if not lib_success:
-                print()
-                if not args.keep_going:
-                    return(2)
-    return(0)
+        if not lib_success:
+            print()
+            if not args.keep_going:
+                return 1
+    return 0
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-k","--keep-going", action="store_true", help="Keep testing even if failed")
     parser.add_argument("--pcblib-path", type=str, help="Path to the PCB library")
-    parser.add_argument("path", help="Path where the schematic libraries are stored")
+    parser.add_argument("path", help="Path of the schematic library to test")
     args = parser.parse_args()
 
     if args.pcblib_path:
         PCBLIB_PATH = args.pcblib_path
     else:
-        PCBLIB_PATH = os.path.join(args.path, PCBLIB_PATH)
+        PCBLIB_PATH = os.path.join(os.path.dirname(args.path), PCBLIB_PATH)
 
     sys.exit(main(args))

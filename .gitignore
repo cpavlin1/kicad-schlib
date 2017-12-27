@@ -1,4 +1,6 @@
 __pycache__
 preview/
+test-results/
+error-report.md
 *.bak
 *.bck
