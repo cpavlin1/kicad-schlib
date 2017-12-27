@@ -8,17 +8,24 @@ TMPDIR := $(shell mktemp -d)
 
 PCBLIB_PATH := "../pcblib"
 
-.PHONY: all clean
+.PHONY: all clean check
 
 all: ${PVFILES}
 	rm -f ${IMAGECACHE}
 	@#./scripts/cleanup.py images
 
-test:
-	./scripts/tests.py -k --pcblib-path ${PCBLIB_PATH} library
+check: error-report.md
+	@[ ! -f error-todo.md ] || diff -uwBd --color=always -I '^- \[x\]' -I '^#' error-todo.md $< && echo "No new errors" || true
+	@[ ! -s $< ] || echo "Errors remain!, check $<" && false
+
+error-report.md: ${LIBFILES}
+	PYTHONUNBUFFERED=1 ./scripts/tests.py \
+		-k --pcblib-path ${PCBLIB_PATH} library \
+	| tee -i $@
 
 clean:
 	rm -rf preview/
+	rm -f error-report.md
 
 preview/%.md: library/%.lib
 	mkdir -p preview/images

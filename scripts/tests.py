@@ -98,29 +98,33 @@ def main(args):
             try:
                 lib = kicad_schlib.Library.parse(reader)
             except kicad_schlib.KiSyntaxError as e:
-                print("[FAIL][    ]  %s - cannot parse" % full_fn)
+                print("# %s - cannot parse" % full_fn)
                 print(str(e))
                 continue
 
-            success = True
+            lib_success = True
             tests = test_functions + test_notpl_functions if not fn.startswith("_") else []
             for each_part in lib.parts:
+                part_success = True
                 for each_fxn in tests:
                     try:
                         each_fxn(each_part)
                     except Exception as e:
-                        print("[    ][FAIL] %s / %s" % (full_fn, each_part.name))
-                        print(each_fxn.__doc__ + ": " + str(e))
-                        success = False
-                        break
+                        if lib_success:
+                            print("# Library '{}'".format(full_fn))
+                            lib_success = False
+                        if part_success:
+                            print("\n## Part '{}'".format(each_part.name))
+                            part_success = False
+                        print("- [ ] {}: {}".format(each_fxn.__doc__, str(e)))
+                        if not args.keep_going:
+                            break
 
-            if success:
-                print("[PASS][    ] %s" % full_fn)
-            else:
-                print("[FAIL][    ] %s" % full_fn)
-                retcode = 2
-                if not args.keep_going: return(retcode)
-    return(retcode)
+            if not lib_success:
+                print()
+                if not args.keep_going:
+                    return(2)
+    return(0)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
