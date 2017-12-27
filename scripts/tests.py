@@ -54,6 +54,13 @@ def fields_50mil(part):
             assert i.size == 50, "field name: %r, value: %r" % (i.name, i.value)
 
 
+@register
+def name_check(part):
+    """Name check"""
+    for c in ":/\\":
+        assert c not in part.def_name, "Forbidden character '{}' in symbol name".format(c)
+
+
 @register_notpl
 def footprint_check(part):
     """Footprint check"""
@@ -64,6 +71,7 @@ def footprint_check(part):
         fpname = fp[1] + ".kicad_mod"
         fppath = os.path.join(PCBLIB_PATH, libname, fpname)
         assert os.path.isfile(fppath), "Footprint file '%s' does not exist" % fppath
+
 
 @register_notpl
 def datasheet_check(part):
