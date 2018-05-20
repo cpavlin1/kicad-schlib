@@ -4,6 +4,10 @@ $CMP ESD8104
 D TVS.4 3.3V 8.5Vclamp [UDFN-10]
 $ENDCMP
 #
+$CMP FST3253
+D Dual 4:1 Multiplexer/Demultiplexer Bus Switch [SOIC-16]
+$ENDCMP
+#
 $CMP MC1496D
 D ModDemod 300MHz Gilbert [SOIC-14]
 $ENDCMP

@@ -25,4 +25,8 @@ D 4-pin oscillator module
 F mod_pdf/OSC-4PIN-*
 $ENDCMP
 #
+$CMP Si5351A
+D I2C-programmable CMOS clock generator [MSOP-10]
+$ENDCMP
+#
 #End Doc Library
