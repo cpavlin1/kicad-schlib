@@ -1,4 +1,4 @@
-EESchema-LIBRARY Version 2.3
+EESchema-LIBRARY Version 2.4
 #encoding utf-8
 #
 # ANTENNA
@@ -73,8 +73,8 @@ F1 "C" 200 -50 50 H V C CNN
 F2 "" -10 -25 60 H V C CNN
 F3 "" -10 -25 60 H V C CNN
 DRAW
-P 2 0 1 15 -80 -25 80 -25 N
-P 2 0 1 15 -80 25 80 25 N
+P 2 0 1 20 -50 -25 50 -25 N
+P 2 0 1 20 -50 25 50 25 N
 P 2 0 1 0 0 -50 0 -40 N
 P 2 0 1 0 0 -25 0 -40 N
 P 2 0 1 0 0 25 0 50 N
